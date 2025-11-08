@@ -1,0 +1,15 @@
+name: ifb
+channels:
+  - conda-forge        # keep this first (and only) for consistency
+dependencies:
+  - python=3.12
+  - numpy
+  - pandas
+  - duckdb
+  - pytorch            # PyTorch w/ Apple Metal (MPS) support on osx-arm64
+  - torchvision
+  - torchaudio
+  - jupyterlab
+  - ipykernel
+  - matplotlib
+  - pip                # keep pip for the rare package not on conda-forge

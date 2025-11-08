@@ -1,0 +1,59 @@
+
+irrepnet_dm: "0.2"
+
+phase_group: { kind: "Zk", k: 8 }
+
+channels:
+  - { name: signal, charge: 1, neutral: false }
+
+nodes:
+  - { id: 0, label: "source", gauge_phase: 0 }
+  - { id: 1, label: "arm_L", gauge_phase: 0 }
+  - { id: 2, label: "arm_R", gauge_phase: 2 }
+  - { id: 3, label: "det_A", gauge_phase: 0 }
+  - { id: 4, label: "det_B", gauge_phase: 0 }
+
+edges:
+  - { id: 0, u: 0, v: 1, sym: true, phase_offset: 0 }
+  - { id: 1, u: 0, v: 2, sym: true, phase_offset: 0 }
+  - { id: 2, u: 1, v: 3, sym: true, phase_offset: 0 }
+  - { id: 3, u: 2, v: 3, sym: true, phase_offset: 0 }
+  - { id: 4, u: 2, v: 4, sym: true, phase_offset: 0 }
+
+directed_edges:
+  - { id: 0, src: 0, dst: 1, edge_ref: 0, enabled: true }
+  - { id: 1, src: 1, dst: 0, edge_ref: 0, enabled: true }
+  - { id: 2, src: 0, dst: 2, edge_ref: 1, enabled: true }
+  - { id: 3, src: 2, dst: 0, edge_ref: 1, enabled: true }
+  - { id: 4, src: 1, dst: 3, edge_ref: 2, enabled: true }
+  - { id: 5, src: 3, dst: 1, edge_ref: 2, enabled: true }
+  - { id: 6, src: 2, dst: 3, edge_ref: 3, enabled: true }
+  - { id: 7, src: 3, dst: 2, edge_ref: 3, enabled: true }
+  - { id: 8, src: 2, dst: 4, edge_ref: 4, enabled: true }
+  - { id: 9, src: 4, dst: 2, edge_ref: 4, enabled: true }
+
+fusion_mask_sparse:
+  - { edge_id: 0, channel: signal, allow_phases: [0,4] }
+  - { edge_id: 2, channel: signal, allow_phases: [0,4] }
+  - { edge_id: 4, channel: signal, allow_phases: [0,4] }
+  - { edge_id: 6, channel: signal, allow_phases: [0,4] }
+  - { edge_id: 8, channel: signal, allow_phases: [0,4] }
+
+counts_init:
+  - { edge: 0, channel: signal, phase: 0, value: 1 }
+  - { edge: 2, channel: signal, phase: 0, value: 1 }
+
+dag:
+  layers:
+    - { edges: [0,2] }
+    - { edges: [4,6,8] }
+  repeat: 1
+
+measurement:
+  representation: "roots_of_unity"
+  outputs:
+    - { name: "det_A", readout_edges: [5] }
+    - { name: "det_B", readout_edges: [9] }
+
+meta:
+  name: "two_path_v01"

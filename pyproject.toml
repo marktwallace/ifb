@@ -1,0 +1,22 @@
+[project]
+name = "irrepnet"
+version = "0.1.0"
+description = "IFB — It From Bit: IRREPnet v0.1 single-channel simulator"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "IFB Project" }]
+dependencies = ["torch>=2.2", "pyyaml>=6.0.1"]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["irrepnet*"]

@@ -1,0 +1,140 @@
+
+irrepnet_dm: "0.2"
+
+# Discrete phase group
+phase_group: { kind: "Zk", k: 8 }
+
+# --- Channels (lepton-only universe + photon) ---
+channels:
+  - { name: e_minus,  charge: -1, neutral: false }
+  - { name: e_plus,   charge: +1, neutral: false }
+  - { name: mu_plus,  charge: +1, neutral: false }   # for muonium experiments (optional in this toy)
+  - { name: gamma,    charge:  0, neutral: true  }
+
+# --- Nodes ---
+# 0 source (electron beam), 6 gamma sink (detector), 5 electron detector
+nodes:
+  - { id: 0, label: "src_L",       gauge_phase: 0, tags: ["corridor"] }
+  - { id: 1, label: "mid_1",       gauge_phase: 0, tags: ["corridor"] }
+  - { id: 2, label: "mid_2",       gauge_phase: 0, tags: ["corridor", "scatter_zone"] }
+  - { id: 3, label: "pos_loop_B",  gauge_phase: 0, tags: ["positronium"] }   # positronium partner
+  - { id: 4, label: "mid_3",       gauge_phase: 0, tags: ["corridor"] }
+  - { id: 5, label: "det_e_R",     gauge_phase: 0 }
+  - { id: 6, label: "det_gamma_R", gauge_phase: 0, tags: ["gamma_detector"] }
+  - { id: 7, label: "mu_loop_B",   gauge_phase: 0, tags: ["muonium"] }       # muonium partner
+
+# --- Undirected edges (edge_ref table) ---
+# Corridor: 0-1-2-4-5; photon line: 2-6; loops: 2-3 (positronium), 2-7 (muonium)
+edges:
+  - { id: 0, u: 0, v: 1, sym: true, phase_offset: 0, tags: ["corridor"] }
+  - { id: 1, u: 1, v: 2, sym: true, phase_offset: 0, tags: ["corridor"] }
+  - { id: 2, u: 2, v: 4, sym: true, phase_offset: 0, tags: ["corridor"] }
+  - { id: 3, u: 4, v: 5, sym: true, phase_offset: 0, tags: ["electron_line"] }   # to e- detector
+  - { id: 4, u: 2, v: 6, sym: true, phase_offset: 0, tags: ["gamma_line"] }      # gamma out
+  - { id: 5, u: 2, v: 3, sym: true, phase_offset: 0, tags: ["positronium"] }
+  - { id: 6, u: 2, v: 7, sym: true, phase_offset: 0, tags: ["muonium"] }
+
+# --- Directed edges (referencing the undirected table above) ---
+directed_edges:
+  - { id: 0,  src: 0, dst: 1, edge_ref: 0, enabled: true }
+  - { id: 1,  src: 1, dst: 0, edge_ref: 0, enabled: true }
+  - { id: 2,  src: 1, dst: 2, edge_ref: 1, enabled: true }
+  - { id: 3,  src: 2, dst: 1, edge_ref: 1, enabled: true }
+  - { id: 4,  src: 2, dst: 4, edge_ref: 2, enabled: true }
+  - { id: 5,  src: 4, dst: 2, edge_ref: 2, enabled: true }
+  - { id: 6,  src: 4, dst: 5, edge_ref: 3, enabled: true }
+  - { id: 7,  src: 5, dst: 4, edge_ref: 3, enabled: true }
+  - { id: 8,  src: 2, dst: 6, edge_ref: 4, enabled: true }   # gamma outbound to detector
+  - { id: 9,  src: 6, dst: 2, edge_ref: 4, enabled: true }
+  - { id: 10, src: 2, dst: 3, edge_ref: 5, enabled: true }
+  - { id: 11, src: 3, dst: 2, edge_ref: 5, enabled: true }
+  - { id: 12, src: 2, dst: 7, edge_ref: 6, enabled: true }
+  - { id: 13, src: 7, dst: 2, edge_ref: 6, enabled: true }
+
+# --- Fusion mask (sparse) ---
+# Corridor edges allow all phases for charged channels (pass-through).
+# Loops restrict phases to [0,4] to mimic discrete "levels".
+# Gamma allowed on photon edges and corridor; neutral so no gauge term.
+fusion_mask_sparse:
+  # Corridor (directed edges 0↔1, 1↔2, 2↔4, 4↔5)
+  - { edge_id: 0, channel: e_minus, allow_phases: [0,1,2,3,4,5,6,7] }
+  - { edge_id: 0, channel: e_plus,  allow_phases: [0,1,2,3,4,5,6,7] }
+  - { edge_id: 1, channel: e_minus, allow_phases: [0,1,2,3,4,5,6,7] }
+  - { edge_id: 1, channel: e_plus,  allow_phases: [0,1,2,3,4,5,6,7] }
+  - { edge_id: 2, channel: e_minus, allow_phases: [0,1,2,3,4,5,6,7] }
+  - { edge_id: 2, channel: e_plus,  allow_phases: [0,1,2,3,4,5,6,7] }
+  - { edge_id: 3, channel: e_minus, allow_phases: [0,1,2,3,4,5,6,7] }
+  - { edge_id: 3, channel: e_plus,  allow_phases: [0,1,2,3,4,5,6,7] }
+  - { edge_id: 4, channel: e_minus, allow_phases: [0,1,2,3,4,5,6,7] }
+  - { edge_id: 4, channel: e_plus,  allow_phases: [0,1,2,3,4,5,6,7] }
+  - { edge_id: 5, channel: e_minus, allow_phases: [0,1,2,3,4,5,6,7] }
+  - { edge_id: 5, channel: e_plus,  allow_phases: [0,1,2,3,4,5,6,7] }
+  - { edge_id: 6, channel: e_minus, allow_phases: [0,1,2,3,4,5,6,7] }
+  - { edge_id: 6, channel: e_plus,  allow_phases: [0,1,2,3,4,5,6,7] }
+  - { edge_id: 7, channel: e_minus, allow_phases: [0,1,2,3,4,5,6,7] }
+  - { edge_id: 7, channel: e_plus,  allow_phases: [0,1,2,3,4,5,6,7] }
+
+  # Gamma line (2 -> 6)
+  - { edge_id: 8, channel: gamma,   allow_phases: [0,1,2,3,4,5,6,7] }
+
+  # Positronium loop (2 ↔ 3)
+  - { edge_id: 10, channel: e_minus, allow_phases: [0,4] }
+  - { edge_id: 10, channel: e_plus,  allow_phases: [0,4] }
+  - { edge_id: 11, channel: e_minus, allow_phases: [0,4] }
+  - { edge_id: 11, channel: e_plus,  allow_phases: [0,4] }
+
+  # Muonium loop (2 ↔ 7)
+  - { edge_id: 12, channel: e_minus, allow_phases: [0,4] }
+  - { edge_id: 12, channel: mu_plus, allow_phases: [0,4] }
+  - { edge_id: 13, channel: e_minus, allow_phases: [0,4] }
+  - { edge_id: 13, channel: mu_plus, allow_phases: [0,4] }
+
+# --- Coupling rules (local, deterministic) ---
+coupling_rules:
+  - name: brems_emit
+    scope: { nodes_any: ["scatter_zone"], out_edges_any: ["gamma_line"] }
+    in:   [{ ch: e_minus, min: 1 }]
+    out:  [{ ch: e_minus, add: 1 }, { ch: gamma, add: 1 }]
+    phase: { gamma: "delta", e_minus: "inherit" }
+  # - name: brems_emit_debug
+  #   scope: { nodes_any: ["scatter_zone"], out_edges_any: ["gamma_line"] }
+  #   in:   [{ ch: e_minus, min: 1 }]
+  #   out:  [{ ch: e_minus, add: 1 }, { ch: gamma, add: 1 }]
+  #   phase: { gamma: "fixed:0", e_minus: "inherit" }
+  - name: ps_transition_emit
+    scope: { nodes_any: ["scatter_zone"], out_edges_any: ["positronium"] }
+    in:   [{ ch: e_minus, min: 1 }, { ch: e_plus, min: 1 }]
+    out:  [{ ch: e_minus, add: 1 }, { ch: e_plus, add: 1 }, { ch: gamma, add: 1 }]
+    phase: { gamma: "fixed:4" }
+  - name: muonium_transition_emit
+    scope: { nodes_any: ["scatter_zone"], out_edges_any: ["muonium"] }
+    in:   [{ ch: e_minus, min: 1 }, { ch: mu_plus, min: 1 }]
+    out:  [{ ch: e_minus, add: 1 }, { ch: mu_plus, add: 1 }, { ch: gamma, add: 1 }]
+    phase: { gamma: "fixed:2" }
+
+# --- Initialization: electron beam from the left ---
+counts_init:
+  - { edge: 0, channel: e_minus, phase: 0, value: 200 }
+
+# --- DAG schedule ---
+dag:
+  layers:
+    - { edges: [0] }     # 0 -> 1
+    - { edges: [2] }     # 1 -> 2 (arrives at scatter node)
+  repeat: 1
+
+# --- Measurement ---
+measurement:
+  representation: "roots_of_unity"
+  outputs:
+    - { name: "gamma_out_R",   readout_edges: [8],  channels: [gamma] }     # 2 -> 6
+    - { name: "electron_R",    readout_edges: [6],  channels: [e_minus] }   # 4 -> 5
+    - { name: "loop_positron", readout_edges: [11], channels: [e_plus] }    # 3 -> 2 (diagnostic)
+    - { name: "loop_mu_plus",  readout_edges: [13], channels: [mu_plus] }   # 7 -> 2 (diagnostic)
+
+meta:
+  name: "cloud_v01"
+  notes: |
+    Simple corridor with two short loops (positronium-like and muonium-like).
+    Electron beam enters from the left (edge id 0).
+    Bremsstrahlung and loop-transition rules emit gamma towards the right detector.
