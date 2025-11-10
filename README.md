@@ -33,6 +33,8 @@ This is a **testbed** for reasoning about **finite, discrete physical models**.
 
 Not a replacement for QFT; rather a platform to study **information-first dynamics**.
 
+So *why* am I doing this? Here is the [long version](WHY.md).
+
 ---
 
 ## 🧱 Core Model Summary (IRREPnet v0.2)
